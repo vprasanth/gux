@@ -1,0 +1,12 @@
+version: "0.1.0"
+session: 
+  - name: test 
+    window:
+      - layout: vertical-split
+        name: editor 
+        workingDir: ~/code
+        panes:
+          - command: vim .
+          - command: bash
+          - command: figlet hello
+    workingDir: ~/code
