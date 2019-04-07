@@ -8,8 +8,6 @@ import (
 	"os/exec"
 )
 
-func runCommand() {}
-
 // @todo fix splitType
 func addPane(
 	sessionName string,
@@ -21,7 +19,6 @@ func addPane(
 	tmux, _ := exec.LookPath("tmux")
 	target := fmt.Sprintf("%s:%d.%d", sessionName, windowIndex, paneIndex)
 	args := []string{"split-window", "-d", splitType, "-t", target, "-c", window.WorkingDir, pane.Command}
-	fmt.Printf("cmd: %+v\n", args)
 	cmd := exec.Command(tmux, args...)
 	return cmd
 }
@@ -30,7 +27,6 @@ func killPane(sessionName string, windowIndex int, paneIndex int) *exec.Cmd {
 	tmux, _ := exec.LookPath("tmux")
 	target := fmt.Sprintf("%s:%d.%d", sessionName, windowIndex, paneIndex)
 	args := []string{"kill-pane", "-t", target}
-	fmt.Printf("cmd: %+v\n", args)
 	cmd := exec.Command(tmux, args...)
 	return cmd
 }
@@ -39,14 +35,12 @@ func createSession(sessionName string) *exec.Cmd {
 	// @todo check for tmux
 	tmux, _ := exec.LookPath("tmux")
 	args := []string{"new-session", "-d", "-s", sessionName}
-	fmt.Printf("cmd: %+v\n", args)
 	return exec.Command(tmux, args...)
 }
 
 func createWindow(window spec.Window) *exec.Cmd {
 	tmux, _ := exec.LookPath("tmux")
 	args := []string{"new-window", "-d", "-n", window.Name, "-c", window.WorkingDir}
-	fmt.Printf("cmd: %+v\n", args)
 	return exec.Command(tmux, args...)
 }
 
@@ -72,8 +66,13 @@ func Init(config spec.GuxConfig) {
 	}
 
 	disposed := commandQueue.Dispose()
-	for i := 0; i < len(disposed); i++ {
-		cmd := disposed[i].(*exec.Cmd)
+	run(disposed)
+}
+
+func run(commands []interface{}) {
+	for i := 0; i < len(commands); i++ {
+		fmt.Printf("cmd: %+v\n", commands[i])
+		cmd := commands[i].(*exec.Cmd)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			fmt.Printf("I suck!: %s", out)
